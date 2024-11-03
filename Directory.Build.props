@@ -3,6 +3,7 @@
   <PropertyGroup>
     <PackageId>$(AssemblyName)</PackageId>
     <Version>0.0.1</Version>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Product>Testcontainers.Spire</Product>
