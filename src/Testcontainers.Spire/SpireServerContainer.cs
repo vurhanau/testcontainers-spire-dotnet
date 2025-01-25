@@ -5,12 +5,16 @@ namespace Testcontainers.Spire;
 
 public class SpireServerContainer : DockerContainer
 {
-  public SpireServerContainer(IContainerConfiguration configuration) : base(configuration)
+  private readonly SpireServerConfiguration _configuration;
+
+  public SpireServerContainer(SpireServerConfiguration configuration)
+      : base(configuration)
   {
+      _configuration = configuration;
   }
 
-  public string GetConnectionString()
+  public SpireServerConfiguration GetConfiguration()
   {
-    return $"spire-server:{this.GetMappedPublicPort(8081)}";
+      return _configuration;
   }
 }

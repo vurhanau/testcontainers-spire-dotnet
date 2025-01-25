@@ -12,10 +12,12 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
 {
   public const string SpireAgentImage = "ghcr.io/spiffe/spire-agent:1.10.0";
 
-  private IVolume vol;
+  public const int SpireAgentPort = 8080;
+
+  public const string ConfigPath = "/etc/spire/agent/agent.conf";
   
   public SpireAgentBuilder()
-    : base(new SpireAgentConfiguration())
+    : this(new SpireAgentConfiguration())
   {
     DockerResourceConfiguration = Init().DockerResourceConfiguration;
   }
@@ -28,29 +30,17 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
 
   protected override SpireAgentConfiguration DockerResourceConfiguration { get; }
 
-  public SpireAgentBuilder WithVolume(IVolume volume)
-  {
-    this.vol = volume;
-    return this;
-  }
-
   protected override SpireAgentBuilder Init()
   {
-    var volume = new VolumeBuilder()
-                      .WithName("spire-agent-" + Guid.NewGuid().ToString("D"))
-                      .Build();
-    this.vol = volume;
-    string conf = "/etc/spire/agent/agent.conf";
     string srv = "/etc/spire/agent/server.crt";
     string crt = "/etc/spire/agent/agent.crt";
     string key = "/etc/spire/agent/agent.key";
 
     return base.Init()
         .WithImage(SpireAgentImage)
-        .WithPortBinding(8080, true)
+        .WithPortBinding(SpireAgentPort, true)
         .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
-        .WithVolumeMount(volume, "/tmp/spire/agent/public")
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentConf), conf)
+        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentConf), ConfigPath)
         .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), crt)
         .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentKey), key)
         .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), srv)
@@ -60,10 +50,21 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
             parameterModifier.HostConfig.PidMode = "host";
             parameterModifier.HostConfig.CgroupnsMode = "host";
         })
+        .WithEnvironment("SERVER_ADDRESS", Defaults.ServerNetworkAlias)
+        .WithEnvironment("TRUST_DOMAIN", Defaults.TrustDomain)
+        .WithEnvironment("TRUST_BUNDLE_PATH", srv)
+        .WithEnvironment("PRIVATE_KEY_PATH", key)
+        .WithEnvironment("CERTIFICATE_PATH", crt)
         .WithCommand(
-            "-config", conf,
-            "-serverAddress", "spire-server"
+            "-config", ConfigPath,
+            "-serverAddress", Defaults.ServerNetworkAlias,
+            "-expandEnv", "true"
         );
+  }
+
+  public SpireAgentBuilder WithVolumeMount(IVolume volume)
+  {
+    return WithVolumeMount(volume, "/tmp/spire/agent/public");
   }
 
   public override SpireAgentContainer Build()
@@ -73,7 +74,7 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
         var waitStrategy = Wait.ForUnixContainer();
 
         var spireAgentBuilder = DockerResourceConfiguration.WaitStrategies.Count() > 1 ? this : WithWaitStrategy(waitStrategy);
-        return new SpireAgentContainer(spireAgentBuilder.DockerResourceConfiguration, this.vol!);
+        return new SpireAgentContainer(spireAgentBuilder.DockerResourceConfiguration);
   }
 
   protected override SpireAgentBuilder Clone(IContainerConfiguration resourceConfiguration)

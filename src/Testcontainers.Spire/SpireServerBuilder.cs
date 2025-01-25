@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text;
 using Docker.DotNet.Models;
@@ -9,17 +10,19 @@ namespace Testcontainers.Spire;
 public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServerContainer, SpireServerConfiguration>
 {
   public const string SpireServerImage = "ghcr.io/spiffe/spire-server:1.10.0";
-  
+
+  public const int SpireServerPort = 8081;
+
   public SpireServerBuilder()
-    : base(new SpireServerConfiguration())
+      : this(new SpireServerConfiguration())
   {
-    DockerResourceConfiguration = Init().DockerResourceConfiguration;
+      DockerResourceConfiguration = Init().DockerResourceConfiguration;
   }
 
-  public SpireServerBuilder(SpireServerConfiguration dockerResourceConfiguration)
-    : base(dockerResourceConfiguration)
+  private SpireServerBuilder(SpireServerConfiguration resourceConfiguration)
+      : base(resourceConfiguration)
   {
-    DockerResourceConfiguration = dockerResourceConfiguration;
+      DockerResourceConfiguration = resourceConfiguration;
   }
 
   protected override SpireServerConfiguration DockerResourceConfiguration { get; }
@@ -29,16 +32,24 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
     string conf = "/etc/spire/server/server.conf";
     string crt = "/etc/spire/server/server.crt";
     string key = "/etc/spire/server/server.key";
-    string agt = "/etc/spire/server/agent.key";
+    string agt = "/etc/spire/server/agent.crt";
 
     return base.Init()
-        .WithImage(SpireServerImage)
-        .WithPortBinding(8081, true)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerConf), conf)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), crt)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerKey), key)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), agt)
-        .WithNetworkAliases("spire-server");
+            .WithImage(SpireServerImage)
+            .WithPortBinding(SpireServerPort, true)
+            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerConf), conf)
+            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), crt)
+            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerKey), key)
+            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), agt)
+            .WithNetworkAliases(Defaults.ServerNetworkAlias)
+            .WithEnvironment("TRUST_DOMAIN", Defaults.TrustDomain)
+            .WithEnvironment("CA_BUNDLE_PATH", agt)
+            .WithEnvironment("KEY_FILE_PATH", key)
+            .WithEnvironment("CERT_FILE_PATH", crt)
+            .WithCommand(
+              "-config", conf,
+              "-expandEnv", "true"
+            );
   }
 
   public override SpireServerContainer Build()
@@ -51,18 +62,21 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
         return new SpireServerContainer(spireServerBuilder.DockerResourceConfiguration);
   }
 
-  protected override SpireServerBuilder Clone(IContainerConfiguration resourceConfiguration)
-  {
-    return Merge(DockerResourceConfiguration, new SpireServerConfiguration(resourceConfiguration));
-  }
-
+  /// <inheritdoc />
   protected override SpireServerBuilder Clone(IResourceConfiguration<CreateContainerParameters> resourceConfiguration)
   {
-    return Merge(DockerResourceConfiguration, new SpireServerConfiguration(resourceConfiguration));
+      return Merge(DockerResourceConfiguration, new SpireServerConfiguration(resourceConfiguration));
   }
 
+  /// <inheritdoc />
+  protected override SpireServerBuilder Clone(IContainerConfiguration resourceConfiguration)
+  {
+      return Merge(DockerResourceConfiguration, new SpireServerConfiguration(resourceConfiguration));
+  }
+
+  /// <inheritdoc />
   protected override SpireServerBuilder Merge(SpireServerConfiguration oldValue, SpireServerConfiguration newValue)
   {
-    return new SpireServerBuilder(new SpireServerConfiguration(oldValue, newValue));
+      return new SpireServerBuilder(new SpireServerConfiguration(oldValue, newValue));
   }
 }

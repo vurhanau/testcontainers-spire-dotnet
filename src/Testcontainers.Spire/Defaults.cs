@@ -6,6 +6,10 @@ namespace Testcontainers.Spire;
 
 public class Defaults
 {
+    public const string TrustDomain = "example.org";
+
+    public const string ServerNetworkAlias = "spire-server";
+
     public static readonly string ServerConf = FromResource("server.conf");
 
     public static readonly string ServerCert = FromResource("server.crt");

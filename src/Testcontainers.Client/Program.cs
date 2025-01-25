@@ -1,115 +1,82 @@
-
-// using DotNet.Testcontainers.Builders;
-// using DotNet.Testcontainers.Configurations;
-// using Testcontainers.Spire;
-
-// Console.WriteLine(SpireServerConfig.ConfigContent);
-// Console.WriteLine(SpireAgentConfig.ConfigContent);
-
-// const string hostName = "spire-server";
-// var network = new NetworkBuilder()
-//     .WithName(Guid.NewGuid().ToString("D"))
-//     .Build();
-// var volume = new VolumeBuilder()
-//     .WithName(Guid.NewGuid().ToString("D"))
-//     .Build();
-
-// var server = new ContainerBuilder()
-//     .WithName(Guid.NewGuid().ToString("D"))
-//     .WithImage("ghcr.io/spiffe/spire-server:1.10.0")
-//     .WithPortBinding(8081, 8081)
-//     .WithBindMount("/Users/avurhanau/Projects/testcontainers-spire-dotnet/src/Testcontainers.Spire/conf/server", "/etc/spire/server")
-//     .WithCommand("-config", "/etc/spire/server/server.conf")
-//     .WithNetwork(network)
-//     .WithNetworkAliases(hostName)
-//     .Build();
-// await network.CreateAsync();
-// await server.StartAsync();
-
-// var pol = await server.ExecAsync([
-//     "/opt/spire/bin/spire-server", "entry", "create",
-//     "-parentID", "spiffe://example.org/myagent",
-//     "-spiffeID", "spiffe://example.org/myservice",
-//     "-selector", "docker:image_id:ghcr.io/spiffe/spire-agent:1.10.0"
-// ]);
-// Console.WriteLine(pol.Stdout);
-
-// var jt = await server.ExecAsync([
-//     "/opt/spire/bin/spire-server", "token", "generate", 
-//     "-spiffeID", "spiffe://example.org/myagent"
-// ]);
-// Console.WriteLine(jt.Stdout);
-
-// var agent = new ContainerBuilder()
-//     .WithName(Guid.NewGuid().ToString("D"))
-//     .WithImage("ghcr.io/spiffe/spire-agent:1.10.0")
-//     .WithPortBinding(8080, 8080)
-//     .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
-//     .WithVolumeMount(volume, "/tmp/spire/agent/public")
-//     .WithBindMount("/Users/avurhanau/Projects/testcontainers-spire-dotnet/src/Testcontainers.Spire/conf/agent", "/etc/spire/agent")
-//     .WithPrivileged(true)
-//     .WithCreateParameterModifier(parameterModifier =>
-//     {
-//         parameterModifier.HostConfig.PidMode = "host";
-//         parameterModifier.HostConfig.CgroupnsMode = "host";
-//     })
-//     .WithCommand(
-//         "-config", "/etc/spire/agent/agent.conf",
-//         "-serverAddress", "spire-server",
-//         "-joinToken", jt.Stdout["Token: ".Length..].Trim()
-//     )
-//     .WithNetwork(network)
-//     .Build();
-// await volume.CreateAsync();
-// await agent.StartAsync();
-
-// Thread.Sleep(5000);
-// using IOutputConsumer outputConsumer = Consume.RedirectStdoutAndStderrToConsole();
-
-// var workload = new ContainerBuilder()
-//     .WithName(Guid.NewGuid().ToString("D"))
-//     .WithImage("ghcr.io/spiffe/spire-agent:1.10.0")
-//     .WithLabel("com.example.service", "myservice")
-//     .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
-//     .WithVolumeMount(volume, "/tmp/spire/agent/public")
-//     .WithBindMount("/Users/avurhanau/Projects/testcontainers-spire-dotnet/src/Testcontainers.Spire/conf/agent", "/etc/spire/agent")
-//     .WithPrivileged(true)
-//     .WithCreateParameterModifier(parameterModifier =>
-//     {
-//         parameterModifier.HostConfig.PidMode = "host";
-//         parameterModifier.HostConfig.CgroupnsMode = "host";
-//     })
-//     .WithEntrypoint(
-//         "/opt/spire/bin/spire-agent", "api", "fetch",
-//         "-socketPath", "/tmp/spire/agent/public/api.sock"
-//     )
-//     .WithOutputConsumer(outputConsumer)
-//     .Build();
-// await workload.StartAsync();
-// Thread.Sleep(5000);
-
 using System;
-using System.IO;
-using System.Reflection;
+using System.Text;
+using System.Threading;
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
 using Testcontainers.Spire;
 
-await using var net = new NetworkBuilder()
-    .WithName(Guid.NewGuid().ToString("D"))
-    .Build();
+var entries = @"
+{
+    ""entries"":[
+        {
+            ""parent_id"": ""spiffe://example.org/spire/agent/cn/agent.example.com"",
+            ""spiffe_id"": ""spiffe://example.org/client"",
+            ""selectors"": [{
+                ""type"": ""docker"",
+                ""value"": ""label:org.example.workload:client""
+            }]
+        },
+        {
+            ""parent_id"": ""spiffe://example.org/spire/agent/cn/agent.example.com"",
+            ""spiffe_id"": ""spiffe://example.org/server"",
+            ""selectors"": [{
+                ""type"": ""docker"",
+                ""value"": ""label:org.example.workload:server""
+            }]
+        }
+    ]
+}
+";
+
+await using var net = new NetworkBuilder().WithName(Guid.NewGuid().ToString("D")).Build();
+await using var vol = new VolumeBuilder().WithName(Guid.NewGuid().ToString("D")).Build();
 
 var s = new SpireServerBuilder().WithNetwork(net).Build();
 await s.StartAsync();
 
-var pol = await s.ExecAsync([
+await s.ExecAsync([
     "/opt/spire/bin/spire-server", "entry", "create",
     "-parentID", "spiffe://example.org/myagent",
     "-spiffeID", "spiffe://example.org/myservice",
-    "-selector", "docker:image_id:ghcr.io/spiffe/spire-agent:1.10.0"
+    "-selector", "docker:label:org.example.workload:client"
+]);
+await s.CopyAsync(Encoding.UTF8.GetBytes(entries), "/etc/spire/server/entries.json");
+await s.ExecAsync([
+    "/opt/spire/bin/spire-server", "entry", "create", "-data", "/etc/spire/server/entries.json"
 ]);
 
-var a = new SpireAgentBuilder().WithNetwork(net).Build();
+var a = new SpireAgentBuilder()
+                .WithNetwork(net)
+                .WithVolumeMount(vol)
+                .WithCommand(
+                    "-config", SpireAgentBuilder.ConfigPath,
+                    "-serverAddress", Defaults.ServerNetworkAlias,
+                    "-expandEnv", "true"
+                )
+                .Build();
 await a.StartAsync();
 
-var w = new SpireAgentBuilder().WithNetwork(net).WithVolume(a.GetAgentVolume())
-.WithCommand("fetch", "spiffe://example.org/myservice");
+Thread.Sleep(3000);
+
+using IOutputConsumer outputConsumer = Consume.RedirectStdoutAndStderrToConsole();
+var w = new ContainerBuilder()
+                .WithImage(SpireAgentBuilder.SpireAgentImage)
+                .WithNetwork(net)
+                .WithVolumeMount(vol, "/tmp/spire/agent/public")
+                .WithLabel("org.example.workload", "client")
+                .WithPrivileged(true)
+                .WithCreateParameterModifier(parameterModifier =>
+                {
+                    parameterModifier.HostConfig.PidMode = "host";
+                    parameterModifier.HostConfig.CgroupnsMode = "host";
+                })
+                .WithEntrypoint(
+                    "/opt/spire/bin/spire-agent", "api", "fetch"
+                )
+                .WithCommand(
+                    "-socketPath", "/tmp/spire/agent/public/api.sock"
+                )
+                .WithOutputConsumer(outputConsumer)
+                .Build();
+await w.StartAsync();
+Thread.Sleep(60000);
