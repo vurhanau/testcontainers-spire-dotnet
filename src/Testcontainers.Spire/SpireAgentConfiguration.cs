@@ -1,3 +1,4 @@
+using System;
 using Docker.DotNet.Models;
 using DotNet.Testcontainers.Configurations;
 
@@ -5,11 +6,24 @@ namespace Testcontainers.Spire;
 
 public sealed class SpireAgentConfiguration : ContainerConfiguration
 {
+    public string TrustDomain { get; } = Defaults.TrustDomain;
+
+    public string ServerAddress { get; } = Defaults.ServerAddress;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
     public SpireAgentConfiguration()
     {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
+    /// </summary>
+    public SpireAgentConfiguration(string trustDomain, string serverAddress)
+    {
+        TrustDomain = trustDomain ?? throw new ArgumentNullException(nameof(trustDomain));
+        ServerAddress = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
     }
 
     /// <summary>

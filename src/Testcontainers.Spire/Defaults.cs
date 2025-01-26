@@ -8,7 +8,7 @@ public class Defaults
 {
     public const string TrustDomain = "example.org";
 
-    public const string ServerNetworkAlias = "spire-server";
+    public const string ServerAddress = "spire-server";
 
     public static readonly string ServerConf = FromResource("server.conf");
 

@@ -1,3 +1,4 @@
+using System;
 using Docker.DotNet.Models;
 using DotNet.Testcontainers.Configurations;
 
@@ -5,11 +6,21 @@ namespace Testcontainers.Spire;
 
 public sealed class SpireServerConfiguration : ContainerConfiguration
 {
+    public string TrustDomain { get; } = Defaults.TrustDomain;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
     /// </summary>
     public SpireServerConfiguration()
     {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// </summary>
+    public SpireServerConfiguration(string trustDomain)
+    {
+        TrustDomain = trustDomain ?? throw new ArgumentNullException(nameof(trustDomain));
     }
 
     /// <summary>

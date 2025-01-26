@@ -1,4 +1,3 @@
-using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 
 namespace Testcontainers.Spire;

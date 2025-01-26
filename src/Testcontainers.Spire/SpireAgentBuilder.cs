@@ -15,6 +15,10 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
   public const int SpireAgentPort = 8080;
 
   public const string ConfigPath = "/etc/spire/agent/agent.conf";
+
+  public const string SocketDir = "/tmp/spire/agent/public";
+
+  public const string SocketPath = $"{SocketDir}/api.sock";
   
   public SpireAgentBuilder()
     : this(new SpireAgentConfiguration())
@@ -50,21 +54,42 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
             parameterModifier.HostConfig.PidMode = "host";
             parameterModifier.HostConfig.CgroupnsMode = "host";
         })
-        .WithEnvironment("SERVER_ADDRESS", Defaults.ServerNetworkAlias)
+        .WithEnvironment("SERVER_ADDRESS", Defaults.ServerAddress)
         .WithEnvironment("TRUST_DOMAIN", Defaults.TrustDomain)
         .WithEnvironment("TRUST_BUNDLE_PATH", srv)
         .WithEnvironment("PRIVATE_KEY_PATH", key)
         .WithEnvironment("CERTIFICATE_PATH", crt)
         .WithCommand(
             "-config", ConfigPath,
-            "-serverAddress", Defaults.ServerNetworkAlias,
+            // "-serverAddress", Defaults.ServerAddress,
             "-expandEnv", "true"
         );
   }
 
-  public SpireAgentBuilder WithVolumeMount(IVolume volume)
+  public SpireAgentBuilder WithTrustDomain(string trustDomain)
   {
-    return WithVolumeMount(volume, "/tmp/spire/agent/public");
+    _ = trustDomain ?? throw new ArgumentNullException(nameof(trustDomain));
+
+    SpireAgentConfiguration oldConfig = DockerResourceConfiguration;
+    SpireAgentConfiguration newConfig = new(trustDomain, oldConfig.ServerAddress);
+
+    return Merge(oldConfig, newConfig).WithEnvironment("TRUST_DOMAIN", trustDomain);
+  }
+
+  public SpireAgentBuilder WithServerAddress(string serverAddress)
+  {
+    _ = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
+
+    SpireAgentConfiguration oldConfig = DockerResourceConfiguration;
+    SpireAgentConfiguration newConfig = new(oldConfig.TrustDomain, serverAddress);
+
+    return Merge(oldConfig, newConfig)
+            .WithEnvironment("SERVER_ADDRESS", serverAddress);
+  }
+
+  public SpireAgentBuilder WithAgentVolume(IVolume volume)
+  {
+    return WithVolumeMount(volume, SocketDir);
   }
 
   public override SpireAgentContainer Build()

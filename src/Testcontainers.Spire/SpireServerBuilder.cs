@@ -41,7 +41,6 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
             .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), crt)
             .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerKey), key)
             .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), agt)
-            .WithNetworkAliases(Defaults.ServerNetworkAlias)
             .WithEnvironment("TRUST_DOMAIN", Defaults.TrustDomain)
             .WithEnvironment("CA_BUNDLE_PATH", agt)
             .WithEnvironment("KEY_FILE_PATH", key)
@@ -50,6 +49,16 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
               "-config", conf,
               "-expandEnv", "true"
             );
+  }
+
+  public SpireServerBuilder WithTrustDomain(string trustDomain)
+  {
+    _ = trustDomain ?? throw new ArgumentNullException(nameof(trustDomain));
+
+    SpireServerConfiguration oldConfig = DockerResourceConfiguration;
+    SpireServerConfiguration newConfig = new(trustDomain);
+
+    return Merge(oldConfig, newConfig).WithEnvironment("TRUST_DOMAIN", trustDomain);
   }
 
   public override SpireServerContainer Build()
