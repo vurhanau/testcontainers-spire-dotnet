@@ -13,6 +13,7 @@
       {
         "type": "coreclr",
         "request": "launch",
+        "preLaunchTask": "build",
         "name": "Launch Testcontainers.Client",
         "program": "${workspaceFolder}/src/Testcontainers.Client/bin/Debug/net8.0/Testcontainers.Client.dll",
         "args": [],

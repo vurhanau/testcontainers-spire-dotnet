@@ -61,7 +61,6 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
         .WithEnvironment("CERTIFICATE_PATH", crt)
         .WithCommand(
             "-config", ConfigPath,
-            // "-serverAddress", Defaults.ServerAddress,
             "-expandEnv", "true"
         );
   }
@@ -83,8 +82,7 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
     SpireAgentConfiguration oldConfig = DockerResourceConfiguration;
     SpireAgentConfiguration newConfig = new(oldConfig.TrustDomain, serverAddress);
 
-    return Merge(oldConfig, newConfig)
-            .WithEnvironment("SERVER_ADDRESS", serverAddress);
+    return Merge(oldConfig, newConfig).WithEnvironment("SERVER_ADDRESS", serverAddress);
   }
 
   public SpireAgentBuilder WithAgentVolume(IVolume volume)
