@@ -9,11 +9,11 @@ public class SpireServerContainer : DockerContainer
   public SpireServerContainer(SpireServerConfiguration configuration)
       : base(configuration)
   {
-      _configuration = configuration;
+    _configuration = configuration;
   }
 
   public SpireServerConfiguration GetConfiguration()
   {
-      return _configuration;
+    return _configuration;
   }
 }

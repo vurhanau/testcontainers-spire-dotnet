@@ -9,17 +9,7 @@ using DotNet.Testcontainers.Volumes;
 namespace Testcontainers.Spire;
 
 public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentContainer, SpireAgentConfiguration>
-{
-  public const string SpireAgentImage = "ghcr.io/spiffe/spire-agent:1.10.0";
-
-  public const int SpireAgentPort = 8080;
-
-  public const string ConfigPath = "/etc/spire/agent/agent.conf";
-
-  public const string SocketDir = "/tmp/spire/agent/public";
-
-  public const string SocketPath = $"{SocketDir}/api.sock";
-  
+{  
   public SpireAgentBuilder()
     : this(new SpireAgentConfiguration())
   {
@@ -36,18 +26,14 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
 
   protected override SpireAgentBuilder Init()
   {
-    string srv = "/etc/spire/agent/server.crt";
-    string crt = "/etc/spire/agent/agent.crt";
-    string key = "/etc/spire/agent/agent.key";
-
     return base.Init()
-        .WithImage(SpireAgentImage)
-        .WithPortBinding(SpireAgentPort, true)
+        .WithImage(Defaults.AgentImage)
+        .WithPortBinding(Defaults.AgentPort, true)
         .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentConf), ConfigPath)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), crt)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentKey), key)
-        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), srv)
+        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentConfig), Defaults.AgentConfigPath)
+        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), Defaults.AgentCertPath)
+        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentKey), Defaults.AgentKeyPath)
+        .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), Defaults.AgentServerCertPath)
         .WithPrivileged(true)
         .WithCreateParameterModifier(parameterModifier =>
         {
@@ -56,11 +42,11 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
         })
         .WithEnvironment("SERVER_ADDRESS", Defaults.ServerAddress)
         .WithEnvironment("TRUST_DOMAIN", Defaults.TrustDomain)
-        .WithEnvironment("TRUST_BUNDLE_PATH", srv)
-        .WithEnvironment("PRIVATE_KEY_PATH", key)
-        .WithEnvironment("CERTIFICATE_PATH", crt)
+        .WithEnvironment("TRUST_BUNDLE_PATH", Defaults.AgentServerCertPath)
+        .WithEnvironment("PRIVATE_KEY_PATH", Defaults.AgentKeyPath)
+        .WithEnvironment("CERTIFICATE_PATH", Defaults.AgentCertPath)
         .WithCommand(
-            "-config", ConfigPath,
+            "-config", Defaults.AgentConfigPath,
             "-expandEnv", "true"
         );
   }
@@ -87,7 +73,7 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
 
   public SpireAgentBuilder WithAgentVolume(IVolume volume)
   {
-    return WithVolumeMount(volume, SocketDir);
+    return WithVolumeMount(volume, Defaults.AgentSocketDir);
   }
 
   public override SpireAgentContainer Build()
