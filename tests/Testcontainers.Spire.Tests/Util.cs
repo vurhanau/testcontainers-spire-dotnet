@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Containers;
 
@@ -6,7 +7,7 @@ namespace Testcontainers.Spire.Tests
 {
     public static class Util
     {
-        public static async Task AssertLog(this IContainer c, string log, int timeoutSeconds)
+        public static async Task AssertLogAsync(this IContainer c, string log, int timeoutSeconds)
         {
             _ = c ?? throw new ArgumentNullException(nameof(c));
             _ = log ?? throw new ArgumentNullException(nameof(log));
@@ -21,7 +22,7 @@ namespace Testcontainers.Spire.Tests
                     Assert.Fail($"Failed to await log '{log}'. Stderr: {stderr}");
                 }
 
-                if (stdout.Contains(log))
+                if (Regex.IsMatch(stdout, log))
                 {
                     ready = true;
                     break;
