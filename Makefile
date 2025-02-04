@@ -13,3 +13,13 @@ test:
 .PHONY: clean
 clean:
 	@dotnet clean
+
+.PHONY: pack
+pack:
+	@rm -rf .nupkg/*
+	@dotnet pack src/Testcontainers.Spire/Testcontainers.Spire.csproj \
+		--configuration Release \
+		--output .nupkg \
+		-p:IncludeSymbols=true \
+		-p:SymbolPackageFormat=snupkg
+
