@@ -21,7 +21,7 @@ public class SpireContainersTest
         await s.StartAsync();
 
         var cert = Encoding.UTF8.GetString(await s.ReadFileAsync("/etc/spire/server/agent.crt"));
-        Console.WriteLine(cert);
+        Console.WriteLine("Agent cert:\n" + cert);
 
         var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).WithOutputConsumer(cout).Build();
         await a.StartAsync();
