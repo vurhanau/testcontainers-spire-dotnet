@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
@@ -14,12 +15,15 @@ public class SpireContainersTest
 
         await using var net = new NetworkBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
         await using var vol = new VolumeBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
+        var cout = Consume.RedirectStdoutAndStderrToConsole();
 
-        IOutputConsumer stdoutc = Consume.RedirectStdoutAndStderrToConsole();
-        var s = new SpireServerBuilder().WithNetwork(net).WithOutputConsumer(stdoutc).Build();
+        var s = new SpireServerBuilder().WithNetwork(net).WithOutputConsumer(cout).Build();
         await s.StartAsync();
 
-        var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).WithOutputConsumer(stdoutc).Build();
+        var cert = Encoding.UTF8.GetString(await s.ReadFileAsync("/etc/spire/server/agent.crt"));
+        Console.WriteLine(cert);
+
+        var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).WithOutputConsumer(cout).Build();
         await a.StartAsync();
 
         await s.ExecAsync([
@@ -32,7 +36,6 @@ public class SpireContainersTest
         string expr = @$"msg=""SVID updated"" entry=[\w-]+ spiffe_id=""spiffe://{td}/workload"" subsystem_name=cache_manager$";
         await a.AssertLogAsync(expr, 10);
         
-        using IOutputConsumer outputConsumer = Consume.RedirectStdoutAndStderrToConsole();
         var w = new ContainerBuilder()
                         .WithImage(Defaults.AgentImage)
                         .WithNetwork(net)
@@ -50,7 +53,7 @@ public class SpireContainersTest
                         .WithCommand(
                             "-socketPath", "/tmp/spire/agent/public/api.sock"
                         )
-                        .WithOutputConsumer(outputConsumer)
+                        .WithOutputConsumer(cout)
                         .Build();
         await w.StartAsync();
 
