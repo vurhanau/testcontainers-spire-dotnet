@@ -20,18 +20,6 @@ public class SpireContainersTest
         var s = new SpireServerBuilder().WithNetwork(net).WithOutputConsumer(cout).Build();
         await s.StartAsync();
 
-        var f = Encoding.UTF8.GetString(await s.ReadFileAsync(Defaults.ServerAgentCertPath));
-        Console.WriteLine("Server agent cert:\n" + f);
-
-        f = Encoding.UTF8.GetString(await s.ReadFileAsync(Defaults.ServerCertPath));
-        Console.WriteLine("Server cert:\n" + f);
-
-        f = Encoding.UTF8.GetString(await s.ReadFileAsync(Defaults.ServerConfigPath));
-        Console.WriteLine("Server conf:\n" + f);
-
-        f = Encoding.UTF8.GetString(await s.ReadFileAsync(Defaults.ServerKeyPath));
-        Console.WriteLine("Server key:\n" + f);
-
         var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).WithOutputConsumer(cout).Build();
         await a.StartAsync();
 
