@@ -15,10 +15,11 @@ public class SpireContainersTest
         await using var net = new NetworkBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
         await using var vol = new VolumeBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
 
-        var s = new SpireServerBuilder().WithNetwork(net).Build();
+        IOutputConsumer stdoutc = Consume.RedirectStdoutAndStderrToConsole();
+        var s = new SpireServerBuilder().WithNetwork(net).WithOutputConsumer(stdoutc).Build();
         await s.StartAsync();
 
-        var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).Build();
+        var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).WithOutputConsumer(stdoutc).Build();
         await a.StartAsync();
 
         await s.ExecAsync([
