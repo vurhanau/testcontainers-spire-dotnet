@@ -18,15 +18,15 @@ public class Defaults
 
     public const string ServerConfigPath = "/etc/spire/server/server.conf";
 
-    public const string ServerCertPath  = "/etc/spire/server/server.crt";
+    public const string ServerCertPath  = "/etc/spire/server/server.pub";
 
     public const string ServerKeyPath = "/etc/spire/server/server.key";
 
-    public const string ServerAgentCertPath = "/etc/spire/server/agent.crt";
+    public const string ServerAgentCertPath = "/etc/spire/server/agent.cert";
 
     public static readonly string ServerConfig = FromResource("server.conf");
 
-    public static readonly string ServerCert = FromResource("server.crt");
+    public static readonly string ServerCert = FromResource("server.pub");
 
     public static readonly string ServerKey = FromResource("server.key");
 
@@ -41,15 +41,15 @@ public class Defaults
 
     public const string AgentSocketPath = $"{AgentSocketDir}/api.sock";
 
-    public const string AgentServerCertPath = "/etc/spire/agent/server.crt";
+    public const string AgentServerCertPath = "/etc/spire/agent/server.pub";
 
-    public const string AgentCertPath = "/etc/spire/agent/agent.crt";
+    public const string AgentCertPath = "/etc/spire/agent/agent.cert";
 
     public const string AgentKeyPath = "/etc/spire/agent/agent.key";
 
     public static readonly string AgentConfig = FromResource("agent.conf");
 
-    public static readonly string AgentCert = FromResource("agent.crt");
+    public static readonly string AgentCert = FromResource("agent.cert");
 
     public static readonly string AgentKey = FromResource("agent.key");
 
