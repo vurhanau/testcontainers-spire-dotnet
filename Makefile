@@ -1,3 +1,5 @@
+VERSION := 0.0.1
+
 .PHONY: restore
 restore:
 	@dotnet restore
@@ -23,3 +25,6 @@ pack:
 		-p:IncludeSymbols=true \
 		-p:SymbolPackageFormat=snupkg
 
+.PHONY: push
+push:
+	@dotnet nuget push nupkg/Spiffe.$(VERSION).nupkg --api-key $(ENV_NUGET_API_KEY) --source https://api.nuget.org/v3/index.json
