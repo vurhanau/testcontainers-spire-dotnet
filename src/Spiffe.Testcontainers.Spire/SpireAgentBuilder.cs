@@ -6,7 +6,8 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Volumes;
 
-namespace Testcontainers.Spire;
+namespace Spiffe.Testcontainers.Spire;
+
 
 public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentContainer, SpireAgentConfiguration>
 {  

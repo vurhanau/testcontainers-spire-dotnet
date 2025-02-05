@@ -5,7 +5,8 @@ using Docker.DotNet.Models;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 
-namespace Testcontainers.Spire;
+namespace Spiffe.Testcontainers.Spire;
+
 
 public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServerContainer, SpireServerConfiguration>
 {

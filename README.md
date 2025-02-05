@@ -5,7 +5,7 @@
 ## Usage
 Install the NuGet dependency
 ```
-dotnet add package Testcontainers.Spire
+dotnet add package Spiffe.Testcontainers.Spire
 ```
 
 Run the container

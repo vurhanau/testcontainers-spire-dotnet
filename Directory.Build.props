@@ -6,8 +6,8 @@
     <TargetFrameworks>net8.0</TargetFrameworks>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <Product>Testcontainers.Spire</Product>
-    <Description>Testcontainers.Spire is a .NET library to support tests with SPIRE.</Description>
+    <Product>Spiffe.Testcontainers.Spire</Product>
+    <Description>Spiffe.Testcontainers.Spire is a .NET library to support tests with SPIRE.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>automation;docker;dotnet;testcontainers;testcontainers-dotnet;testcontainers-spire-dotnet;testing;spire;spiffe;</PackageTags>
