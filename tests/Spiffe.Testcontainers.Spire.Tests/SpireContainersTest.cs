@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 
-namespace Testcontainers.Spire.Tests;
+namespace Spiffe.Testcontainers.Spire.Tests;
 
 public class SpireContainersTest
 {

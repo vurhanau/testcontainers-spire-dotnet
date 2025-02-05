@@ -2,63 +2,67 @@ using System;
 using Docker.DotNet.Models;
 using DotNet.Testcontainers.Configurations;
 
-namespace Testcontainers.Spire;
+namespace Spiffe.Testcontainers.Spire;
 
-public sealed class SpireServerConfiguration : ContainerConfiguration
+
+public sealed class SpireAgentConfiguration : ContainerConfiguration
 {
     public string TrustDomain { get; } = Defaults.TrustDomain;
 
+    public string ServerAddress { get; } = Defaults.ServerAddress;
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
-    public SpireServerConfiguration()
+    public SpireAgentConfiguration()
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
-    public SpireServerConfiguration(string trustDomain)
+    public SpireAgentConfiguration(string trustDomain, string serverAddress)
     {
         TrustDomain = trustDomain ?? throw new ArgumentNullException(nameof(trustDomain));
+        ServerAddress = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
     /// <param name="resourceConfiguration">The Docker resource configuration.</param>
-    public SpireServerConfiguration(IResourceConfiguration<CreateContainerParameters> resourceConfiguration)
+    public SpireAgentConfiguration(IResourceConfiguration<CreateContainerParameters> resourceConfiguration)
         : base(resourceConfiguration)
     {
         // Passes the configuration upwards to the base implementations to create an updated immutable copy.
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
     /// <param name="resourceConfiguration">The Docker resource configuration.</param>
-    public SpireServerConfiguration(IContainerConfiguration resourceConfiguration)
+    public SpireAgentConfiguration(IContainerConfiguration resourceConfiguration)
         : base(resourceConfiguration)
     {
         // Passes the configuration upwards to the base implementations to create an updated immutable copy.
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
     /// <param name="resourceConfiguration">The Docker resource configuration.</param>
-    public SpireServerConfiguration(SpireServerConfiguration resourceConfiguration)
-        : this(new SpireServerConfiguration(), resourceConfiguration)
+    public SpireAgentConfiguration(SpireAgentConfiguration resourceConfiguration)
+        : this(new SpireAgentConfiguration(), resourceConfiguration)
     {
         // Passes the configuration upwards to the base implementations to create an updated immutable copy.
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SpireServerConfiguration" /> class.
+    /// Initializes a new instance of the <see cref="SpireAgentConfiguration" /> class.
     /// </summary>
     /// <param name="oldValue">The old Docker resource configuration.</param>
     /// <param name="newValue">The new Docker resource configuration.</param>
-    public SpireServerConfiguration(SpireServerConfiguration oldValue, SpireServerConfiguration newValue)
+    public SpireAgentConfiguration(SpireAgentConfiguration oldValue, SpireAgentConfiguration newValue)
         : base(oldValue, newValue)
     {
     }

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Testcontainers.Spire\Testcontainers.Spire.csproj" />
+    <ProjectReference Include="..\..\src\Spiffe.Testcontainers.Spire\Spiffe.Testcontainers.Spire.csproj" />
   </ItemGroup>
 
   <ItemGroup>

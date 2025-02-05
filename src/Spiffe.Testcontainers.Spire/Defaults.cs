@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Testcontainers.Spire;
+namespace Spiffe.Testcontainers.Spire;
 
 public class Defaults
 {
@@ -58,7 +58,7 @@ public class Defaults
         Assembly? assembly = Assembly.GetAssembly(typeof(Defaults))
                                 ?? throw new Exception("Assembly not found.");
 
-        string fullResourceName = $"Testcontainers.Spire.resources.{resource}";
+        string fullResourceName = $"Spiffe.Testcontainers.Spire.resources.{resource}";
         using Stream? s = assembly.GetManifestResourceStream(fullResourceName)
                                 ?? throw new Exception($"Resource '{fullResourceName}' not found.");
 

@@ -17,7 +17,7 @@ clean:
 .PHONY: pack
 pack:
 	@rm -rf .nupkg/*
-	@dotnet pack src/Testcontainers.Spire/Testcontainers.Spire.csproj \
+	@dotnet pack src/Spiffe.Testcontainers.Spire/Spiffe.Testcontainers.Spire.csproj \
 		--configuration Release \
 		--output .nupkg \
 		-p:IncludeSymbols=true \
