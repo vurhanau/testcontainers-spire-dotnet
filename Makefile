@@ -1,3 +1,11 @@
+-include .env
+
+VERSION := $$(grep "<Version>" Directory.Build.props | sed 's/\s*<.*>\(.*\)<.*>/\1/' | awk '{$$1=$$1};1')
+
+.PHONY: version
+version:
+	@echo $(VERSION)
+
 .PHONY: restore
 restore:
 	@dotnet restore
@@ -23,3 +31,6 @@ pack:
 		-p:IncludeSymbols=true \
 		-p:SymbolPackageFormat=snupkg
 
+.PHONY: push
+push:
+	@dotnet nuget push .nupkg/Spiffe.Testcontainers.Spire.$(VERSION).nupkg --api-key $(ENV_NUGET_API_KEY) --source https://api.nuget.org/v3/index.json
