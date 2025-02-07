@@ -26,6 +26,8 @@ public class Defaults
 
     public static readonly string ServerConfig = FromResource("server.conf");
 
+    public static readonly string ServerConfigTemplate = FromResource("server.conf.template");
+
     public static readonly string ServerCert = FromResource("server.cert");
 
     public static readonly string ServerKey = FromResource("server.key");

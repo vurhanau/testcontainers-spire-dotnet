@@ -1,13 +1,31 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Configurations;
+using Scriban;
 
 namespace Spiffe.Testcontainers.Spire.Tests;
 
 public class SpireContainersTest
 {
+    [Fact]
+    public void RenderConfigTest()
+    {
+        var template = Template.Parse(Defaults.ServerConfigTemplate);
+        var result = template.Render(new
+        {
+            TrustDomain = "example.com",
+            LogLevel = "DEBUG",
+            CaBundlePath = Defaults.ServerAgentCertPath,
+            KeyFilePath = Defaults.ServerKeyPath,
+            CertFilePath = Defaults.ServerCertPath,
+            Federation = new dynamic[]
+            {
+                new { TrustDomain = "example1.org", Host = "spire-server1" },
+                new { TrustDomain = "example2.org", Host = "spire-server2" },
+            },
+        });
+    }
+
     [Fact(Timeout = 60_000)]
     public async Task StartTest()
     {

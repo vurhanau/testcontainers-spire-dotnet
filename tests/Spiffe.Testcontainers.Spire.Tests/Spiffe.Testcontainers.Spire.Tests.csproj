@@ -19,6 +19,7 @@
     <PackageReference Include="xunit.runner.visualstudio">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
+    <PackageReference Include="Scriban" />
   </ItemGroup>
 
   <ItemGroup>

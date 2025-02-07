@@ -1,0 +1,58 @@
+server {
+    bind_address = "0.0.0.0"
+    bind_port = "8081"
+    socket_path = "/tmp/spire-server/private/api.sock"
+    trust_domain = "{{trustDomain}}"
+    data_dir = "/var/lib/spire/server/.data"
+    log_level = "{{logLevel}}"
+}
+
+plugins {
+    DataStore "sql" {
+        plugin_data {
+            database_type = "sqlite3"
+            connection_string = "/var/lib/spire/server/.data/datastore.sqlite3"
+        }
+    }
+
+    NodeAttestor "x509pop" {
+        plugin_data {
+            ca_bundle_path = "{{caBundlePath}}"
+            agent_path_template = "/x509pop/cn/{%{{{ .Subject.CommonName }}}%}"
+        }
+    }
+
+    KeyManager "memory" {
+        plugin_data = {}
+    }
+
+    UpstreamAuthority "disk" {
+        plugin_data {
+            key_file_path = "{{keyFilePath}}"
+            cert_file_path = "{{certFilePath}}"
+        }
+    }
+
+    {{ if federation.size > 0 }}
+    federation {
+        bundle_endpoint {
+            address = "0.0.0.0"
+            port = 8443
+            refresh_hint = "10m"
+            profile "https_web" {
+                acme {
+                    domain_name = "{{trustDomain}}"
+                    email = "mail@{{trustDomain}}"
+                }
+            }
+        }
+
+        {{ for f in federation }}
+        federates_with "{{f.trustDomain}}" {
+            bundle_endpoint_url = "https://{{f.host}}:8443"
+            bundle_endpoint_profile "https_web" {}
+        }
+        {{ end }}
+    }
+    {{ end }}
+}
