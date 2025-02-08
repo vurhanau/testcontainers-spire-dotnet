@@ -18,7 +18,7 @@ plugins {
     NodeAttestor "x509pop" {
         plugin_data {
             ca_bundle_path = "{{caBundlePath}}"
-            agent_path_template = "/x509pop/cn/{%{{{ .Subject.CommonName }}}%}"
+            agent_path_template = "/x509pop/cn/\{{ .Subject.CommonName }}"
         }
     }
 
@@ -33,7 +33,7 @@ plugins {
         }
     }
 
-    {{ if federation.size > 0 }}
+    {{#if federation.length}}
     federation {
         bundle_endpoint {
             address = "0.0.0.0"
@@ -47,12 +47,12 @@ plugins {
             }
         }
 
-        {{ for f in federation }}
-        federates_with "{{f.trustDomain}}" {
-            bundle_endpoint_url = "https://{{f.host}}:8443"
+        {{#each federation}}
+        federates_with "{{this.trustDomain}}" {
+            bundle_endpoint_url = "https://{{this.host}}:8443"
             bundle_endpoint_profile "https_web" {}
         }
-        {{ end }}
+        {{/each}}
     }
-    {{ end }}
+    {{/if}}
 }

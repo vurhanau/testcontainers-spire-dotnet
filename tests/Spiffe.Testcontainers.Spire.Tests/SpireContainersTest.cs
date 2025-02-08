@@ -1,17 +1,18 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
-using Scriban;
+using HandlebarsDotNet;
 
 namespace Spiffe.Testcontainers.Spire.Tests;
 
 public class SpireContainersTest
 {
     [Fact]
-    public void RenderConfigTest()
+    public void RenderConfigTemplate()
     {
-        var template = Template.Parse(Defaults.ServerConfigTemplate);
-        var result = template.Render(new
+        var template = Handlebars.Compile(Defaults.ServerConfigTemplate);
+        var model = new
         {
             TrustDomain = "example.com",
             LogLevel = "DEBUG",
@@ -23,7 +24,18 @@ public class SpireContainersTest
                 new { TrustDomain = "example1.org", Host = "spire-server1" },
                 new { TrustDomain = "example2.org", Host = "spire-server2" },
             },
-        });
+        };
+        var result = template(model);
+        Assert.NotEmpty(result);
+        Assert.Contains("example.com", result);
+        Assert.Contains("DEBUG", result);
+        Assert.Contains(Defaults.ServerAgentCertPath, result);
+        Assert.Contains(Defaults.ServerKeyPath, result);
+        Assert.Contains(Defaults.ServerCertPath, result);
+        Assert.Contains("example1.org", result);
+        Assert.Contains("spire-server1", result);
+        Assert.Contains("example2.org", result);
+        Assert.Contains("spire-server2", result);
     }
 
     [Fact(Timeout = 60_000)]
