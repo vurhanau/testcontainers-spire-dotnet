@@ -5,6 +5,29 @@ server {
     trust_domain = "{{trustDomain}}"
     data_dir = "{{dataDir}}"
     log_level = "{{logLevel}}"
+
+    {{#if federation}}
+    federation {
+        bundle_endpoint {
+            address = "0.0.0.0"
+            port = {{federation.port}}
+            refresh_hint = "10m"
+            profile "https_web" {
+                acme {
+                    domain_name = "{{trustDomain}}"
+                    email = "mail@{{trustDomain}}"
+                }
+            }
+        }
+
+        {{#each federation.federatesWith}}
+        federates_with "{{this.trustDomain}}" {
+            bundle_endpoint_url = "https://{{this.host}}:{{this.port}}"
+            bundle_endpoint_profile "https_web" {}
+        }
+        {{/each}}
+    }
+    {{/if}}
 }
 
 plugins {
@@ -32,27 +55,4 @@ plugins {
             cert_file_path = "{{certFilePath}}"
         }
     }
-
-    {{#if federation}}
-    federation {
-        bundle_endpoint {
-            address = "0.0.0.0"
-            port = {{federation.port}}
-            refresh_hint = "10m"
-            profile "https_web" {
-                acme {
-                    domain_name = "{{trustDomain}}"
-                    email = "mail@{{trustDomain}}"
-                }
-            }
-        }
-
-        {{#each federation.federatesWith}}
-        federates_with "{{this.trustDomain}}" {
-            bundle_endpoint_url = "https://{{this.host}}:{{this.port}}"
-            bundle_endpoint_profile "https_web" {}
-        }
-        {{/each}}
-    }
-    {{/if}}
 }
