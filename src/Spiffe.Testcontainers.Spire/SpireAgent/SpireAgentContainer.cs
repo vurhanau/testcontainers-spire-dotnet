@@ -1,8 +1,7 @@
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 
-namespace Spiffe.Testcontainers.Spire;
-
+namespace Spiffe.Testcontainers.Spire.Agent;
 
 public class SpireAgentContainer : DockerContainer
 {

@@ -1,0 +1,29 @@
+agent {
+    data_dir = "{{dataDir}}"
+    log_level = "{{logLevel}}"
+    server_address = "{{serverAddress}}"
+    server_port = "{{serverPort}}"
+    socket_path ="{{socketPath}}"
+    trust_bundle_path = "{{trustBundlePath}}"
+    trust_domain = "{{trustDomain}}"
+}
+
+plugins {
+    NodeAttestor "x509pop" {
+        plugin_data {
+            private_key_path = "{{keyFilePath}}"
+            certificate_path = "{{certFilePath}}"
+        }
+    }
+    KeyManager "disk" {
+        plugin_data {
+            directory = "{{dataDir}}"
+        }
+    }
+    WorkloadAttestor "docker" {
+        plugin_data {
+            docker_socket_path = "unix://{{dockerSocketPath}}"
+            use_new_container_locator = true
+        }
+    }
+}

@@ -1,9 +1,9 @@
 server {
     bind_address = "0.0.0.0"
-    bind_port = "8081"
-    socket_path = "/tmp/spire-server/private/api.sock"
+    bind_port = "{{port}}"
+    socket_path = "{{socketPath}}"
     trust_domain = "{{trustDomain}}"
-    data_dir = "/var/lib/spire/server/.data"
+    data_dir = "{{dataDir}}"
     log_level = "{{logLevel}}"
 }
 
@@ -11,14 +11,14 @@ plugins {
     DataStore "sql" {
         plugin_data {
             database_type = "sqlite3"
-            connection_string = "/var/lib/spire/server/.data/datastore.sqlite3"
+            connection_string = "{{dataDir}}/datastore.sqlite3"
         }
     }
 
     NodeAttestor "x509pop" {
         plugin_data {
             ca_bundle_path = "{{caBundlePath}}"
-            agent_path_template = "/x509pop/cn/\{{ .Subject.CommonName }}"
+            agent_path_template = "{{agentPathTemplate}}"
         }
     }
 
@@ -33,11 +33,11 @@ plugins {
         }
     }
 
-    {{#if federation.length}}
+    {{#if federation}}
     federation {
         bundle_endpoint {
             address = "0.0.0.0"
-            port = 8443
+            port = {{federation.port}}
             refresh_hint = "10m"
             profile "https_web" {
                 acme {
@@ -47,9 +47,9 @@ plugins {
             }
         }
 
-        {{#each federation}}
+        {{#each federation.federatesWith}}
         federates_with "{{this.trustDomain}}" {
-            bundle_endpoint_url = "https://{{this.host}}:8443"
+            bundle_endpoint_url = "https://{{this.host}}:{{this.port}}"
             bundle_endpoint_profile "https_web" {}
         }
         {{/each}}

@@ -1,41 +1,62 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
-using HandlebarsDotNet;
+using Spiffe.Testcontainers.Spire.Agent;
+using Spiffe.Testcontainers.Spire.Server;
 
 namespace Spiffe.Testcontainers.Spire.Tests;
 
 public class SpireContainersTest
 {
     [Fact]
-    public void RenderConfigTemplate()
+    public void RenderServerConfigTest()
     {
-        var template = Handlebars.Compile(Defaults.ServerConfigTemplate);
-        var model = new
+        var c = new ServerConf()
         {
-            TrustDomain = "example.com",
-            LogLevel = "DEBUG",
-            CaBundlePath = Defaults.ServerAgentCertPath,
-            KeyFilePath = Defaults.ServerKeyPath,
-            CertFilePath = Defaults.ServerCertPath,
-            Federation = new dynamic[]
+            Federation = new()
             {
-                new { TrustDomain = "example1.org", Host = "spire-server1" },
-                new { TrustDomain = "example2.org", Host = "spire-server2" },
+                Port = 8082,
+                FederatesWith =
+                [
+                    new() { TrustDomain = "example1.org", Host = "spire-server1", Port = 8443 },
+                    new() { TrustDomain = "example2.org", Host = "spire-server2", Port = 8443 },
+                ],
             },
         };
-        var result = template(model);
+        var result = c.Render();
         Assert.NotEmpty(result);
-        Assert.Contains("example.com", result);
-        Assert.Contains("DEBUG", result);
-        Assert.Contains(Defaults.ServerAgentCertPath, result);
-        Assert.Contains(Defaults.ServerKeyPath, result);
-        Assert.Contains(Defaults.ServerCertPath, result);
-        Assert.Contains("example1.org", result);
-        Assert.Contains("spire-server1", result);
-        Assert.Contains("example2.org", result);
-        Assert.Contains("spire-server2", result);
+        Assert.Contains(c.TrustDomain, result);
+        Assert.Contains(c.LogLevel, result);
+        Assert.Contains(c.CaBundlePath, result);
+        Assert.Contains(c.KeyFilePath, result);
+        Assert.Contains(c.CertFilePath, result);
+
+        var f = c.Federation;
+        Assert.Contains(f.Port.ToString(), result);
+        foreach (var fi in  f.FederatesWith)
+        {
+            Assert.Contains(fi.TrustDomain, result);
+            Assert.Contains(fi.Host, result);
+            Assert.Contains(fi.Port.ToString(), result);
+        }
+    }
+
+    [Fact]
+    public void RenderAgentConfigTest()
+    {
+        var c = new AgentConf();
+        var result = c.Render();
+        Assert.NotEmpty(result);
+        Assert.Contains(c.ServerAddress, result);
+        Assert.Contains(c.ServerPort.ToString(), result);
+        Assert.Contains(c.SocketPath, result);
+        Assert.Contains(c.TrustBundlePath, result);
+        Assert.Contains(c.TrustDomain, result);
+        Assert.Contains(c.DataDir, result);
+        Assert.Contains(c.LogLevel, result);
+        Assert.Contains(c.CertFilePath, result);
+        Assert.Contains(c.KeyFilePath, result);
+        Assert.Contains(c.DockerSocketPath, result);
     }
 
     [Fact(Timeout = 60_000)]
@@ -45,12 +66,25 @@ public class SpireContainersTest
 
         await using var net = new NetworkBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
         await using var vol = new VolumeBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
-        var cout = Consume.RedirectStdoutAndStderrToConsole();
+        var output = Consume.RedirectStdoutAndStderrToConsole();
 
-        var s = new SpireServerBuilder().WithNetwork(net).WithOutputConsumer(cout).Build();
+        var serverOptions = new ServerOptions();
+        serverOptions.Conf.LogLevel = "DEBUG";
+        var s = new SpireServerBuilder().WithNetwork(net).WithOptions(serverOptions).WithOutputConsumer(output).Build();
         await s.StartAsync();
 
-        var a = new SpireAgentBuilder().WithNetwork(net).WithAgentVolume(vol).WithOutputConsumer(cout).Build();
+        var agentSocketDir = "/tmp/spire/agent/public";
+        var agentSocketPath = agentSocketDir + "/api.sock";
+        var agentOptions = new AgentOptions();
+        var c = agentOptions.Conf;
+        c.SocketPath = agentSocketPath;
+        var a = new SpireAgentBuilder()
+                        .WithNetwork(net)
+                        .WithBindMount("/var/run/docker.sock", c.DockerSocketPath)
+                        .WithVolumeMount(vol, agentSocketPath)
+                        .WithOptions(agentOptions)
+                        .WithOutputConsumer(output)
+                        .Build();
         await a.StartAsync();
 
         await s.ExecAsync([
@@ -66,7 +100,7 @@ public class SpireContainersTest
         var w = new ContainerBuilder()
                         .WithImage(Defaults.AgentImage)
                         .WithNetwork(net)
-                        .WithVolumeMount(vol, "/tmp/spire/agent/public")
+                        .WithVolumeMount(vol, agentSocketDir)
                         .WithLabel("com.example", "workload")
                         .WithPrivileged(true)
                         .WithCreateParameterModifier(parameterModifier =>
@@ -78,9 +112,9 @@ public class SpireContainersTest
                             "/opt/spire/bin/spire-agent", "api", "fetch"
                         )
                         .WithCommand(
-                            "-socketPath", "/tmp/spire/agent/public/api.sock"
+                            "-socketPath", agentSocketPath
                         )
-                        .WithOutputConsumer(cout)
+                        .WithOutputConsumer(output)
                         .Build();
         await w.StartAsync();
 

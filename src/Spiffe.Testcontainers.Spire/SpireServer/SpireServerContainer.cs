@@ -1,7 +1,6 @@
 using DotNet.Testcontainers.Containers;
 
-namespace Spiffe.Testcontainers.Spire;
-
+namespace Spiffe.Testcontainers.Spire.Server;
 
 public class SpireServerContainer : DockerContainer
 {

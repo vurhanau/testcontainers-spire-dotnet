@@ -5,8 +5,7 @@ using Docker.DotNet.Models;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 
-namespace Spiffe.Testcontainers.Spire;
-
+namespace Spiffe.Testcontainers.Spire.Server;
 
 public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServerContainer, SpireServerConfiguration>
 {
@@ -26,32 +25,21 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
 
   protected override SpireServerBuilder Init()
   {
+    ServerOptions options = DockerResourceConfiguration.Options;
     return base.Init()
-            .WithImage(Defaults.ServerImage)
-            .WithPortBinding(Defaults.ServerPort, true)
-            .WithNetworkAliases(Defaults.ServerAddress)
-            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerConfig), Defaults.ServerConfigPath)
-            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerCert), Defaults.ServerCertPath)
-            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.ServerKey), Defaults.ServerKeyPath)
-            .WithResourceMapping(Encoding.UTF8.GetBytes(Defaults.AgentCert), Defaults.ServerAgentCertPath)
-            .WithEnvironment("TRUST_DOMAIN", Defaults.TrustDomain)
-            .WithEnvironment("CA_BUNDLE_PATH", Defaults.ServerAgentCertPath)
-            .WithEnvironment("KEY_FILE_PATH", Defaults.ServerKeyPath)
-            .WithEnvironment("CERT_FILE_PATH", Defaults.ServerCertPath)
-            .WithCommand(
-              "-config", Defaults.ServerConfigPath,
-              "-expandEnv", "true"
-            );
+               .WithImage(Defaults.ServerImage)
+               .WithNetworkAliases(Defaults.ServerAddress)
+               .Apply(options);
   }
 
-  public SpireServerBuilder WithTrustDomain(string trustDomain)
+  public SpireServerBuilder WithOptions(ServerOptions options)
   {
-    _ = trustDomain ?? throw new ArgumentNullException(nameof(trustDomain));
+    _ = options ?? throw new ArgumentNullException(nameof(options));
 
     SpireServerConfiguration oldConfig = DockerResourceConfiguration;
-    SpireServerConfiguration newConfig = new(trustDomain);
+    SpireServerConfiguration newConfig = new(options);
 
-    return Merge(oldConfig, newConfig).WithEnvironment("TRUST_DOMAIN", trustDomain);
+    return Merge(oldConfig, newConfig).Apply(options);
   }
 
   public override SpireServerContainer Build()
@@ -64,21 +52,33 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
     return new SpireServerContainer(spireServerBuilder.DockerResourceConfiguration);
   }
 
-  /// <inheritdoc />
   protected override SpireServerBuilder Clone(IResourceConfiguration<CreateContainerParameters> resourceConfiguration)
   {
     return Merge(DockerResourceConfiguration, new SpireServerConfiguration(resourceConfiguration));
   }
 
-  /// <inheritdoc />
   protected override SpireServerBuilder Clone(IContainerConfiguration resourceConfiguration)
   {
     return Merge(DockerResourceConfiguration, new SpireServerConfiguration(resourceConfiguration));
   }
 
-  /// <inheritdoc />
   protected override SpireServerBuilder Merge(SpireServerConfiguration oldValue, SpireServerConfiguration newValue)
   {
     return new SpireServerBuilder(new SpireServerConfiguration(oldValue, newValue));
+  }
+
+  private SpireServerBuilder Apply(ServerOptions options)
+  {
+    ServerConf c = options.Conf;
+    string conf = c.Render();
+    return WithPortBinding(c.Port, true)
+          .WithResourceMapping(Encoding.UTF8.GetBytes(conf), options.ConfPath)
+          .WithResourceMapping(Encoding.UTF8.GetBytes(options.Cert), c.CertFilePath)
+          .WithResourceMapping(Encoding.UTF8.GetBytes(options.Key), c.KeyFilePath)
+          .WithResourceMapping(Encoding.UTF8.GetBytes(options.CaBundle), c.CaBundlePath)
+          .WithCommand(
+            "-config", options.ConfPath,
+            "-expandEnv", "true"
+          );
   }
 }
