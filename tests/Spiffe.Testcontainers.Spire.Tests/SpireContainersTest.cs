@@ -105,7 +105,7 @@ public class SpireContainersTest
         await a.AssertLogAsync(expr, 10);
         
         var w = new ContainerBuilder()
-                        .WithImage(Defaults.AgentImage)
+                        .WithImage(SpireAgentBuilder.Image)
                         .WithNetwork(net)
                         .WithVolumeMount(vol, socketDir)
                         .WithLabel("com.example", "workload")

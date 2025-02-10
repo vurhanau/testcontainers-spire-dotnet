@@ -9,7 +9,9 @@ using DotNet.Testcontainers.Volumes;
 namespace Spiffe.Testcontainers.Spire.Agent;
 
 public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentContainer, SpireAgentConfiguration>
-{  
+{ 
+  public const string Image = "ghcr.io/spiffe/spire-agent:1.10.0";
+
   public SpireAgentBuilder()
     : this(new SpireAgentConfiguration())
   {
@@ -29,7 +31,7 @@ public class SpireAgentBuilder : ContainerBuilder<SpireAgentBuilder, SpireAgentC
     AgentOptions options = DockerResourceConfiguration.Options;
 
     return base.Init()
-               .WithImage(Defaults.AgentImage)
+               .WithImage(Image)
                .WithPrivileged(true)
                .WithCreateParameterModifier(parameterModifier =>
                {

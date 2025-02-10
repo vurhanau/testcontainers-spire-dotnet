@@ -9,6 +9,10 @@ namespace Spiffe.Testcontainers.Spire.Server;
 
 public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServerContainer, SpireServerConfiguration>
 {
+  public const string Image = "ghcr.io/spiffe/spire-server:1.10.0";
+
+  public const string DefaultAddress = "spire-server";
+
   public SpireServerBuilder()
       : this(new SpireServerConfiguration())
   {
@@ -27,8 +31,8 @@ public class SpireServerBuilder : ContainerBuilder<SpireServerBuilder, SpireServ
   {
     ServerOptions options = DockerResourceConfiguration.Options;
     return base.Init()
-               .WithImage(Defaults.ServerImage)
-               .WithNetworkAliases(Defaults.ServerAddress)
+               .WithImage(Image)
+               .WithNetworkAliases(DefaultAddress)
                .Apply(options);
   }
 
