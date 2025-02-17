@@ -1,14 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.Marshalling;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Networks;
-using DotNet.Testcontainers.Volumes;
 using Spiffe.Testcontainers.Spire.Agent;
 using Spiffe.Testcontainers.Spire.Server;
 

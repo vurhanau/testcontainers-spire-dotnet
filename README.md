@@ -1,4 +1,4 @@
-# Testcontainers.Spire
+# Spiffe.Testcontainers.Spire
 
 .NET library for [SPIRE](https://github.com/spiffe/spire) testing via [Testcontainers](https://testcontainers.com/).
 
@@ -10,23 +10,19 @@ dotnet add package Spiffe.Testcontainers.Spire
 
 Run the container
 ```csharp
-// Create a shared network
-await using var net = new NetworkBuilder().WithName("example.com-network").Build();
+await using var network = new NetworkBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
 
-// Create and start SPIRE Server
-var server = new SpireServerBuilder()
-                  .WithTrustDomain("example.com")
-                  .WithNetwork(net)
-                  .Build();
+// Start Spire server
+var server = new SpireServerBuilder().WithNetwork(network).Build();
 await server.StartAsync();
 
-// Create and start SPIRE Agent
-await using var vol = new VolumeBuilder().WithName("example.com-volume").Build();
+// Start Spire agent
+await using var volume = new VolumeBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
 var agent = new SpireAgentBuilder()
-                  .WithTrustDomain("example.com")
-                  .WithNetwork(net)
-                  .WithAgentVolume(vol)
-                  .Build();
+                    .WithNetwork(network)
+                    .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
+                    .WithVolumeMount(volume, "/tmp/spire/agent/public")
+                    .Build();
 await agent.StartAsync();
 
 // Create a workload entry
