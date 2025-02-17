@@ -10,14 +10,14 @@ dotnet add package Spiffe.Testcontainers.Spire
 
 Run the container
 ```csharp
-await using var network = new NetworkBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
+await using var network = new NetworkBuilder().WithName("network-example.com").Build();
 
 // Start Spire server
 var server = new SpireServerBuilder().WithNetwork(network).Build();
 await server.StartAsync();
 
 // Start Spire agent
-await using var volume = new VolumeBuilder().WithName(td + "-" + Guid.NewGuid().ToString("D")).Build();
+await using var volume = new VolumeBuilder().WithName("volume-example.com").Build();
 var agent = new SpireAgentBuilder()
                     .WithNetwork(network)
                     .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
