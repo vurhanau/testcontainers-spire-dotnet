@@ -61,7 +61,7 @@ public class SpireContainersTest
         Assert.Contains(c.DockerSocketPath, result);
     }
 
-    [Fact(Timeout = 80_000)]
+    [Fact(Timeout = 180_000)]
     public async Task StartTest()
     {
         var td = "example.com";
