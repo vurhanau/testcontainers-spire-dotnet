@@ -28,8 +28,8 @@ await agent.StartAsync();
 // Create a workload entry
 await server.ExecAsync([
     "/opt/spire/bin/spire-server", "entry", "create",
-    "-parentID", $"spiffe://example.com/spire/agent/x509pop/cn/agent.example.com",
-    "-spiffeID", $"spiffe://example.com/workload",
+    "-parentID", "spiffe://example.com/spire/agent/x509pop/cn/agent.example.com",
+    "-spiffeID", "spiffe://example.com/workload",
     "-selector", "docker:label:com.example:workload"
 ]);
 ```
