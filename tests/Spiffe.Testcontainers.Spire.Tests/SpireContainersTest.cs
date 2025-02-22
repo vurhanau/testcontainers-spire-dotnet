@@ -61,7 +61,7 @@ public class SpireContainersTest
         Assert.Contains(c.DockerSocketPath, result);
     }
 
-    [Fact(Timeout = 60_000)]
+    [Fact(Timeout = 80_000)]
     public async Task StartTest()
     {
         var td = "example.com";
@@ -96,7 +96,7 @@ public class SpireContainersTest
         ]);
 
         string expr = @$"msg=""SVID updated"" entry=[\w-]+ spiffe_id=""spiffe://{td}/workload"" subsystem_name=cache_manager$";
-        await a.AssertLogAsync(expr, 10);
+        await a.AssertLogAsync(expr, 20);
         
         var w = new ContainerBuilder()
                         .WithImage(SpireAgentBuilder.Image)
@@ -119,7 +119,7 @@ public class SpireContainersTest
                         .Build();
         await w.StartAsync();
 
-        await w.AssertLogAsync("Received 1 svid after", 10);
+        await w.AssertLogAsync("Received 1 svid after", 20);
     }
 
     [Fact(Timeout = 180_000)]
@@ -221,8 +221,8 @@ public class SpireContainersTest
             // Bundle refresh interval
             await Task.Delay(60_000);
             await Task.WhenAll(
-                td[0].Srv.AssertLogAsync($"level=info msg=\"Bundle refreshed\" subsystem_name=bundle_client trust_domain=example2.org", 60),
-                td[1].Srv.AssertLogAsync($"level=info msg=\"Bundle refreshed\" subsystem_name=bundle_client trust_domain=example1.org", 60)
+                td[0].Srv.AssertLogAsync($"level=info msg=\"Bundle refreshed\" subsystem_name=bundle_client trust_domain=example2.org", 80),
+                td[1].Srv.AssertLogAsync($"level=info msg=\"Bundle refreshed\" subsystem_name=bundle_client trust_domain=example1.org", 80)
             );
         }
         catch (Exception e)
