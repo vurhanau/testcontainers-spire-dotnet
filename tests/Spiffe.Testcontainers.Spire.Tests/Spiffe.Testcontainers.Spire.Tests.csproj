@@ -9,21 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Spiffe.Testcontainers.Spire\Spiffe.Testcontainers.Spire.csproj" />
+    <ProjectReference Include="..\..\src\Spiffe.Testcontainers.Spire\Spiffe.Testcontainers.Spire.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="coverlet.collector"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="xunit"/>
     <PackageReference Include="xunit.runner.visualstudio">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="Handlebars.Net" />
+    <PackageReference Include="Handlebars.Net"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <Using Include="Xunit"/>
   </ItemGroup>
 
 </Project>

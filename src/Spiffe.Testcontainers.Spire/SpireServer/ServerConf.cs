@@ -5,47 +5,51 @@ namespace Spiffe.Testcontainers.Spire.Server;
 
 public class ServerConf
 {
-    private static readonly HandlebarsTemplate<object, object> template = Handlebars.Compile(SpireResources.Load("server.conf.hbars"));
+  private static readonly HandlebarsTemplate<object, object> template =
+    Handlebars.Compile(SpireResources.Load("server.conf.hbars"));
 
-    public int Port { get; set; } = 8081;
+  public ServerConf()
+  {
+  }
 
-    public string SocketPath { get; set; } = "/tmp/spire-server/private/api.sock";
+  public ServerConf(ServerConf conf)
+  {
+    _ = conf ?? throw new ArgumentNullException(nameof(conf));
 
-    public string TrustDomain { get; set; } = "example.com";
+    Port = conf.Port;
+    SocketPath = conf.SocketPath;
+    TrustDomain = conf.TrustDomain;
+    LogLevel = conf.LogLevel;
+    DataDir = conf.DataDir;
+    KeyFilePath = conf.KeyFilePath;
+    CertFilePath = conf.CertFilePath;
+    CaBundlePath = conf.CaBundlePath;
+    AgentPathTemplate = conf.AgentPathTemplate;
+    Federation = conf.Federation != null ? new ServerConfFederation(conf.Federation) : null;
+  }
 
-    public string LogLevel { get; set; } = "INFO";
+  public int Port { get; set; } = 8081;
 
-    public string DataDir { get; set; } = "/var/lib/spire/server/.data";
+  public string SocketPath { get; set; } = "/tmp/spire-server/private/api.sock";
 
-    public string KeyFilePath { get; set; } = "/etc/spire/server/server.key";
+  public string TrustDomain { get; set; } = "example.com";
 
-    public string CertFilePath { get; set; } = "/etc/spire/server/server.cert";
+  public string LogLevel { get; set; } = "INFO";
 
-    public string CaBundlePath { get; set; } = "/etc/spire/server/agent.cert";
+  public string DataDir { get; set; } = "/var/lib/spire/server/.data";
 
-    public string AgentPathTemplate { get; set; } = "/x509pop/cn/{{ .Subject.CommonName }}";
+  public string KeyFilePath { get; set; } = "/etc/spire/server/server.key";
 
-    public ServerConfFederation? Federation { get; set; }
+  public string CertFilePath { get; set; } = "/etc/spire/server/server.cert";
 
-    public ServerConf()
-    {
-    }
+  public string CaBundlePath { get; set; } = "/etc/spire/server/agent.cert";
 
-    public ServerConf(ServerConf conf)
-    {
-        _ = conf ?? throw new ArgumentNullException(nameof(conf));
+  public string AgentPathTemplate { get; set; } = "/x509pop/cn/{{ .Subject.CommonName }}";
 
-        Port = conf.Port;
-        SocketPath = conf.SocketPath;
-        TrustDomain = conf.TrustDomain;
-        LogLevel = conf.LogLevel;
-        DataDir = conf.DataDir;
-        KeyFilePath = conf.KeyFilePath;
-        CertFilePath = conf.CertFilePath;
-        CaBundlePath = conf.CaBundlePath;
-        AgentPathTemplate = conf.AgentPathTemplate;
-        Federation = conf.Federation != null ? new ServerConfFederation(conf.Federation) : null;
-    }
+  public ServerConfFederation? Federation { get; set; }
 
-    public string Render() => template(this);
+  public string Render()
+  {
+    return template(this);
+  }
 }

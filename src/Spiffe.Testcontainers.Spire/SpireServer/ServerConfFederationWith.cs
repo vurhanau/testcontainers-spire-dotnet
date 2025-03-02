@@ -4,22 +4,22 @@ namespace Spiffe.Testcontainers.Spire.Server;
 
 public class ServerConfFederationWith
 {
-    public string TrustDomain { get; set; } = string.Empty;
+  public ServerConfFederationWith()
+  {
+  }
 
-    public string Host { get; set; } = string.Empty;
+  public ServerConfFederationWith(ServerConfFederationWith confFederationWith)
+  {
+    _ = confFederationWith ?? throw new ArgumentNullException(nameof(confFederationWith));
 
-    public int Port { get; set; } = 8443;
+    TrustDomain = confFederationWith.TrustDomain;
+    Host = confFederationWith.Host;
+    Port = confFederationWith.Port;
+  }
 
-    public ServerConfFederationWith()
-    {
-    }
+  public string TrustDomain { get; set; } = string.Empty;
 
-    public ServerConfFederationWith(ServerConfFederationWith confFederationWith)
-    {
-        _ = confFederationWith ?? throw new ArgumentNullException(nameof(confFederationWith));
+  public string Host { get; set; } = string.Empty;
 
-        TrustDomain = confFederationWith.TrustDomain;
-        Host = confFederationWith.Host;
-        Port = confFederationWith.Port;
-    }
+  public int Port { get; set; } = 8443;
 }

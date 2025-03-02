@@ -5,47 +5,51 @@ namespace Spiffe.Testcontainers.Spire.Agent;
 
 public class AgentConf
 {
-    private static readonly HandlebarsTemplate<object, object> template = Handlebars.Compile(SpireResources.Load("agent.conf.hbars"));
+  private static readonly HandlebarsTemplate<object, object> template =
+    Handlebars.Compile(SpireResources.Load("agent.conf.hbars"));
 
-    public string ServerAddress { get; set; } = "spire-server";
+  public AgentConf()
+  {
+  }
 
-    public int ServerPort { get; set; } = 8081;
+  public AgentConf(AgentConf conf)
+  {
+    _ = conf ?? throw new ArgumentNullException(nameof(conf));
 
-    public string SocketPath { get; set; } = "/tmp/spire/agent/public/api.sock";
+    ServerAddress = conf.ServerAddress;
+    ServerPort = conf.ServerPort;
+    SocketPath = conf.SocketPath;
+    TrustBundlePath = conf.TrustBundlePath;
+    TrustDomain = conf.TrustDomain;
+    DataDir = conf.DataDir;
+    LogLevel = conf.LogLevel;
+    CertFilePath = conf.CertFilePath;
+    KeyFilePath = conf.KeyFilePath;
+    DockerSocketPath = conf.DockerSocketPath;
+  }
 
-    public string TrustBundlePath { get; set; } = "/etc/spire/agent/server.cert";
+  public string ServerAddress { get; set; } = "spire-server";
 
-    public string TrustDomain { get; set; } = "example.com";
+  public int ServerPort { get; set; } = 8081;
 
-    public string DataDir { get; set; } = "/var/lib/spire/agent/.data";
+  public string SocketPath { get; set; } = "/tmp/spire/agent/public/api.sock";
 
-    public string LogLevel { get; set; } = "INFO";
+  public string TrustBundlePath { get; set; } = "/etc/spire/agent/server.cert";
 
-    public string CertFilePath { get; set; } = "/etc/spire/agent/agent.cert";
+  public string TrustDomain { get; set; } = "example.com";
 
-    public string KeyFilePath { get; set; } = "/etc/spire/agent/agent.key";
+  public string DataDir { get; set; } = "/var/lib/spire/agent/.data";
 
-    public string DockerSocketPath { get; set; } = "/var/run/docker.sock";
+  public string LogLevel { get; set; } = "INFO";
 
-    public AgentConf()
-    {
-    }
+  public string CertFilePath { get; set; } = "/etc/spire/agent/agent.cert";
 
-    public AgentConf(AgentConf conf)
-    {
-        _ = conf ?? throw new ArgumentNullException(nameof(conf));
+  public string KeyFilePath { get; set; } = "/etc/spire/agent/agent.key";
 
-        ServerAddress = conf.ServerAddress;
-        ServerPort = conf.ServerPort;
-        SocketPath = conf.SocketPath;
-        TrustBundlePath = conf.TrustBundlePath;
-        TrustDomain = conf.TrustDomain;
-        DataDir = conf.DataDir;
-        LogLevel = conf.LogLevel;
-        CertFilePath = conf.CertFilePath;
-        KeyFilePath = conf.KeyFilePath;
-        DockerSocketPath = conf.DockerSocketPath;
-    }
+  public string DockerSocketPath { get; set; } = "/var/run/docker.sock";
 
-    public string Render() => template(this);
+  public string Render()
+  {
+    return template(this);
+  }
 }

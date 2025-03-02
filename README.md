@@ -3,12 +3,15 @@
 .NET library for [SPIRE](https://github.com/spiffe/spire) testing via [Testcontainers](https://testcontainers.com/).
 
 ## Usage
+
 Install the NuGet dependency
+
 ```
 dotnet add package Spiffe.Testcontainers.Spire
 ```
 
 Run the container
+
 ```csharp
 await using var network = new NetworkBuilder().WithName("network-example.com").Build();
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
+<<<<<<< Updated upstream
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
@@ -12,3 +13,17 @@
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
     </ItemGroup>
 </Project>
+=======
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Testcontainers" Version="4.2.0" />
+    <PackageVersion Include="Handlebars.Net" Version="2.1.6" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.1" />
+  </ItemGroup>
+</Project>
+>>>>>>> Stashed changes

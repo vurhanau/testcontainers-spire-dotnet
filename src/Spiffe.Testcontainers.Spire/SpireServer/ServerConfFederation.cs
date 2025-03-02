@@ -6,19 +6,19 @@ namespace Spiffe.Testcontainers.Spire.Server;
 
 public class ServerConfFederation
 {
-    public int Port { get; set; } = 8443;
+  public ServerConfFederation()
+  {
+  }
 
-    public List<ServerConfFederationWith> FederatesWith { get; set; } = [];
+  public ServerConfFederation(ServerConfFederation confFederation)
+  {
+    _ = confFederation ?? throw new ArgumentNullException(nameof(confFederation));
 
-    public ServerConfFederation()
-    {
-    }
+    Port = confFederation.Port;
+    FederatesWith = confFederation.FederatesWith?.Select(f => new ServerConfFederationWith(f)).ToList() ?? [];
+  }
 
-    public ServerConfFederation(ServerConfFederation confFederation)
-    {
-        _ = confFederation ?? throw new ArgumentNullException(nameof(confFederation));
-        
-        Port = confFederation.Port;
-        FederatesWith = confFederation.FederatesWith?.Select(f => new ServerConfFederationWith(f)).ToList() ?? [];
-    }
+  public int Port { get; set; } = 8443;
+
+  public List<ServerConfFederationWith> FederatesWith { get; set; } = [];
 }

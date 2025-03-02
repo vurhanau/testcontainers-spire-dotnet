@@ -7,7 +7,7 @@ public class SpireServerContainer : DockerContainer
   private readonly SpireServerConfiguration _configuration;
 
   public SpireServerContainer(SpireServerConfiguration configuration)
-      : base(configuration)
+    : base(configuration)
   {
     _configuration = configuration;
   }

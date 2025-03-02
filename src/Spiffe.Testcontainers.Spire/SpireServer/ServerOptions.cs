@@ -4,25 +4,25 @@ namespace Spiffe.Testcontainers.Spire.Server;
 
 public class ServerOptions
 {
-    public string ConfPath { get; set; } = "/etc/spire/server/server.conf";
+  public ServerOptions()
+  {
+  }
 
-    public ServerConf Conf { get; set; } = new();
+  public ServerOptions(ServerOptions options)
+  {
+    _ = options ?? throw new ArgumentNullException(nameof(options));
 
-    public string Cert { get; set; } = SpireResources.Load("server.cert");
+    ConfPath = options.ConfPath;
+    Conf = new ServerConf(options.Conf);
+  }
 
-    public string Key { get; set; } = SpireResources.Load("server.key");
+  public string ConfPath { get; set; } = "/etc/spire/server/server.conf";
 
-    public string CaBundle { get; set; } = SpireResources.Load("agent.cert");
+  public ServerConf Conf { get; set; } = new();
 
-    public ServerOptions()
-    {
-    }
+  public string Cert { get; set; } = SpireResources.Load("server.cert");
 
-    public ServerOptions(ServerOptions options)
-    {
-        _ = options ?? throw new ArgumentNullException(nameof(options));
+  public string Key { get; set; } = SpireResources.Load("server.key");
 
-        ConfPath = options.ConfPath;
-        Conf = new(options.Conf);
-    }
+  public string CaBundle { get; set; } = SpireResources.Load("agent.cert");
 }

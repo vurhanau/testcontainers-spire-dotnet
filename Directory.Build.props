@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>$(AssemblyName)</PackageId>
     <Version>0.0.1</Version>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Product>Spiffe.Testcontainers.Spire</Product>

@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E379C159
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spiffe.Testcontainers.Spire.Tests", "tests\Spiffe.Testcontainers.Spire.Tests\Spiffe.Testcontainers.Spire.Tests.csproj", "{2E879BFC-6311-48A2-AA4E-5FF56C3422FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spiffe.Testcontainers.Spire.Tests.Workload", "tests\Spiffe.Testcontainers.Spire.Tests.Workload\Spiffe.Testcontainers.Spire.Tests.Workload.csproj", "{D37E6A57-6C92-4DE9-B9AC-F86BE1680D03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +30,14 @@ Global
 		{2E879BFC-6311-48A2-AA4E-5FF56C3422FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E879BFC-6311-48A2-AA4E-5FF56C3422FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E879BFC-6311-48A2-AA4E-5FF56C3422FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D37E6A57-6C92-4DE9-B9AC-F86BE1680D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D37E6A57-6C92-4DE9-B9AC-F86BE1680D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D37E6A57-6C92-4DE9-B9AC-F86BE1680D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D37E6A57-6C92-4DE9-B9AC-F86BE1680D03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{82F9E6CE-4F08-49CA-AA0A-5104574BFECD} = {4CF255F4-7DA4-4AE9-BF3A-BDFE7FB69ED3}
 		{2E879BFC-6311-48A2-AA4E-5FF56C3422FF} = {E379C159-8B62-4C87-BBDC-2A1102415456}
+		{D37E6A57-6C92-4DE9-B9AC-F86BE1680D03} = {E379C159-8B62-4C87-BBDC-2A1102415456}
 	EndGlobalSection
 EndGlobal
